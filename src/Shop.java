@@ -1,13 +1,13 @@
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class Shop extends Thread implements Runnable, IBuyer,IUseBasket {
+public class Shop extends Thread implements Runnable, IBuyer, IUseBasket {
 
     int buyerNumber;
-
-    public void setBuyerNumber(int buyerNumber) {
-        this.buyerNumber = buyerNumber;
-    }
+    static int countBuyer = 0;
+    static String[] goods = {"bread for 1.5p", "butter", "salt", "sugar", "meat", "milk", "sweets", "chocolate", "pasta", "eggs", "wine", "cigarettes"};
+    static String[] prices = {"1.5p", "2.4p", "0.7p", "1p", "10p", "2.3p", "4p", "3p", "2.7p", "2.9p", "28p", "3.35p"};
+    static boolean pensioner;
 
     public Shop(int buyerNumber) {
         this.buyerNumber = buyerNumber;
@@ -22,28 +22,61 @@ public class Shop extends Thread implements Runnable, IBuyer,IUseBasket {
 
     @Override
     public void enterToMarket() {
-        System.out.println(this + "entered the shop");
+        System.out.println(this + "has entered the shop");
     }
 
     @Override
     public void takeBacket() {
-
+        int time = Rnd(100, 200);
+        pensioner = countBuyer % 4 == 0;
+        try {
+            if (pensioner) {
+                time *= 1.5;
+            }
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            System.err.println(this + "//некорректное время ожидания");
+        }
+        System.out.println(this + "has taken a basket");
     }
 
     @Override
     public void chooseGoods() {
         int choosing = Rnd(0.5, 2);
+        String[] products = new String[goods.length];
+        StringBuilder choice = new StringBuilder();
+        for (int i = 0; i < goods.length; i++) {
+            products[i] = goods[i] + " for " + prices[i];
+        }
+        int count = Rnd(1, 4);
+        pensioner = countBuyer % 4 == 0;
         try {
+            if (pensioner) {
+                choosing *= 1.5;
+            }
+            for (int i = 0; i < count; i++) {
+                choice.append(products[Rnd(0, products.length - 1)]).append(" ");
+            }
             Thread.sleep(choosing);
         } catch (InterruptedException e) {
             System.err.println(this + "//некорректное время ожидания");
         }
-        System.out.println(this + "has chosen the good");
+        System.out.println(this + "has chosen a good " + choice);
     }
 
     @Override
     public void putGoodsToBacket() {
-
+        int putting = Rnd(100, 200);
+        pensioner = countBuyer % 4 == 0;
+        try {
+            if (pensioner) {
+                putting *= 1.5;
+            }
+            Thread.sleep(putting);
+        } catch (InterruptedException e) {
+            System.err.println(this + "//некорректное время ожидания");
+        }
+        System.out.println(this + "has put a good into basket");
     }
 
     @Override
@@ -54,15 +87,15 @@ public class Shop extends Thread implements Runnable, IBuyer,IUseBasket {
     @Override
     public void run() {
         enterToMarket();
+        takeBacket();
         chooseGoods();
+        putGoodsToBacket();
         goOut();
     }
 
     public static int Rnd(double from, double to) {
-        return (int) (Math.random() * (to - from) + from);
+        return (int) (Math.random() * (to - from + 1) + from);
     }
-
-    static int countBuyer = 0;
 
     public static void main(String[] args) throws InterruptedException {
         Queue<Shop> queue = new ArrayDeque<>();
