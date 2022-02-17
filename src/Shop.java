@@ -99,15 +99,28 @@ public class Shop extends Thread implements Runnable, IBuyer, IUseBasket {
 
     public static void main(String[] args) throws InterruptedException {
         Queue<Shop> queue = new ArrayDeque<>();
-        int time = 0;
+        int time = 0, minute = 0, buyerInMinute = 0;
         while (time < 120) {
             Thread.sleep(1000);
             int count = Rnd(0, 2);
-            for (int i = 0; i <= count; i++) {
-                countBuyer++;
-                Thread.yield();
-                Shop buyer = new Shop(countBuyer);
-                queue.add(buyer);
+            for (int i = 0; i < count; i++) {
+                if ((time - minute) / 30 < 1) {
+                    if (countBuyer - buyerInMinute < 10) {
+                        countBuyer++;
+                        Shop buyer = new Shop(countBuyer);
+                        queue.add(buyer);
+                    }
+                } else {
+                    if (countBuyer - buyerInMinute < 40) {
+                        countBuyer++;
+                        Shop buyer = new Shop(countBuyer);
+                        queue.add(buyer);
+                    }
+                }
+            }
+            if (time == 60) {
+                minute = time;
+                buyerInMinute = countBuyer;
             }
             time++;
         }
